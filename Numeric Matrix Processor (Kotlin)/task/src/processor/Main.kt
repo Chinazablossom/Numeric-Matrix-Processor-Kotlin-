@@ -1,17 +1,21 @@
 package processor
+
 import java.util.*
 import kotlin.system.exitProcess
 
-class NumberMatrixProcessor{
+class NumberMatrixProcessor {
     init {
         val scanner = Scanner(System.`in`)
 
         do {
-            println("1. Add matrices\n" +
-                    "2. Multiply matrix by a constant\n" +
-                    "3. Multiply matrices\n" +
-                    "4. Transpose matrix\n" +
-                    "0. Exit")
+            println(
+                "1. Add matrices\n" +
+                        "2. Multiply matrix by a constant\n" +
+                        "3. Multiply matrices\n" +
+                        "4. Transpose matrix\n" +
+                        "5. Calculate a determinant\n" +
+                        "0. Exit"
+            )
             print("Your choice: > ")
 
             when (scanner.nextInt()) {
@@ -19,12 +23,12 @@ class NumberMatrixProcessor{
                 2 -> multiplyMatrixByConstant(scanner)
                 3 -> multiplyMatrices(scanner)
                 4 -> transposeMatrix(scanner)
+                5 -> calculateDeterminant(scanner)
                 0 -> exitProcess(0)
                 else -> println("Invalid choice. Please try again.")
             }
-        }while (true)
+        } while (true)
     }
-
 
     private fun addMatrices(scanner: Scanner) {
         println("Enter size of first matrix: > ")
@@ -110,10 +114,12 @@ class NumberMatrixProcessor{
     }
 
     private fun transposeMatrix(scanner: Scanner) {
-     println("1. Main diagonal\n" +
-             "2. Side diagonal\n" +
-             "3. Vertical line\n" +
-             "4. Horizontal line\n")
+        println(
+            "1. Main diagonal\n" +
+                    "2. Side diagonal\n" +
+                    "3. Vertical line\n" +
+                    "4. Horizontal line\n"
+        )
         print("Your choice: > ")
         val choice = scanner.nextInt()
         println("Enter matrix size: > ")
@@ -187,10 +193,54 @@ class NumberMatrixProcessor{
         return resultMatrix
     }
 
+    private fun calculateDeterminant(scanner: Scanner) {
+        println("Enter matrix size: > ")
+        val n = scanner.nextInt()
+        val m = scanner.nextInt()
+        if (n != m) {
+            println("The operation cannot be performed.")
+            return
+        }
+        println("Enter matrix: ")
+        val matrix = Array(n) { DoubleArray(m) { scanner.nextDouble() } }
+        val result = determinant(matrix)
+        println("The result is:")
+        println(result)
+    }
 
+    private fun determinant(matrix: Array<DoubleArray>): Double {
+        val n = matrix.size
+        if (n == 1) return matrix[0][0]
+        if (n == 2) return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+
+        var det = 0.0
+        (0 until n).forEach { j ->
+            det += matrix[0][j] * cofactor(matrix, 0, j)
+        }
+        return det
+    }
+
+    private fun cofactor(matrix: Array<DoubleArray>, row: Int, col: Int): Double {
+        return minor(matrix, row, col) * if ((row + col) % 2 == 0) 1 else -1
+    }
+
+    private fun minor(matrix: Array<DoubleArray>, row: Int, col: Int): Double {
+        val subMatrix = Array(matrix.size - 1) { DoubleArray(matrix.size - 1) }
+        var subI = 0
+        matrix.indices.forEach { i ->
+            if (i == row) return@forEach
+            var subJ = 0
+            matrix.indices.forEach { j ->
+                if (j == col) return@forEach
+                subMatrix[subI][subJ] = matrix[i][j]
+                subJ++
+            }
+            subI++
+        }
+        return determinant(subMatrix)
+    }
 }
 
 fun main() {
     NumberMatrixProcessor()
 }
-
