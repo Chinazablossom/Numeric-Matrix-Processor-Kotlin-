@@ -14,9 +14,10 @@ class NumberMatrixProcessor {
                         "3. Multiply matrices\n" +
                         "4. Transpose matrix\n" +
                         "5. Calculate a determinant\n" +
+                        "6. Inverse matrix\n" +
                         "0. Exit"
             )
-            print("Your choice: > ")
+            print("Your choice:")
 
             when (scanner.nextInt()) {
                 1 -> addMatrices(scanner)
@@ -24,6 +25,7 @@ class NumberMatrixProcessor {
                 3 -> multiplyMatrices(scanner)
                 4 -> transposeMatrix(scanner)
                 5 -> calculateDeterminant(scanner)
+                6 -> inverseMatrix(scanner)
                 0 -> exitProcess(0)
                 else -> println("Invalid choice. Please try again.")
             }
@@ -238,6 +240,40 @@ class NumberMatrixProcessor {
             subI++
         }
         return determinant(subMatrix)
+    }
+
+    private fun inverseMatrix(scanner: Scanner) {
+        println("Enter matrix size: > ")
+        val n = scanner.nextInt()
+        val m = scanner.nextInt()
+        if (n != m) {
+            println("The operation cannot be performed.")
+            return
+        }
+        println("Enter matrix: ")
+        val matrix = Array(n) { DoubleArray(m) { scanner.nextDouble() } }
+        val det = determinant(matrix)
+        if (det == 0.0) {
+            println("This matrix doesn't have an inverse.")
+            return
+        }
+        val cofactors = Array(n) { DoubleArray(m) }
+        (0 until n).forEach { i ->
+            (0 until m).forEach { j ->
+                cofactors[i][j] = cofactor(matrix, i, j)
+            }
+        }
+        val adjugate = transposeMainDiagonal(cofactors)
+        val inverseMatrix = Array(n) { DoubleArray(m) }
+        (0 until n).forEach { i ->
+            (0 until m).forEach { j ->
+                inverseMatrix[i][j] = adjugate[i][j] / det
+            }
+        }
+        println("The result is:")
+        inverseMatrix.forEach { row ->
+            println(row.joinToString(" ") { String.format("%.2f", it) })
+        }
     }
 }
 
